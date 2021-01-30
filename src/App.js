@@ -6,35 +6,76 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 import './App.css';
 
 //create your forceUpdate hook
-function useForceUpdate(){
+function useForceUpdate() {
   const [value, setValue] = useState(0); // integer state
   return () => setValue(value => value + 1); // update the state to force render
 }
 
 function App() {
   const [socketUrl, setSocketUrl] = useState('wss://localhost');
-  const [gameName, setGameName] = useState('');
+  const [gameName, setGameName] = useState('our_super_game');
   const [playerName, setPlayerName] = useState('');
-  const [playerCards, setPlayerCards] = useState(["Card1", "Card2"]);
-  const [playerList, setPlayerList] = useState([{ name: "Dave", score: 0 }, { name: "Kev", score: 2 }]);
+  const [playerCards, setPlayerCards] = useState([]);
+  const [playerList, setPlayerList] = useState({});
   const [selectedCards, setSelectedCards] = useState([]);
-  const messageHistory = useRef([]);
+  const [blackCard, setBlackCard] = useState("");
+  const [spotCount, setSpotCount] = useState(0);
+  const [cardsPlayed, setCardsPlayed] = useState([]);
+  const [cardCzar, setCardCzar] = useState("");
+  const [played, setPlayed] = useState(false);
   const forceUpdate = useForceUpdate();
+
+  const onMessageRecived = (msg) => {
+    console.log(msg)
+    let data = JSON.parse(msg.data)
+    switch (data.type) {
+      case "card_replenishment":
+        playerCards.push(...data.data)
+        setPlayerCards(playerCards)
+        break;
+      case "players":
+        setPlayerList(data.data)
+        break;
+      case "round_info":
+        setBlackCard(data.data.black_card)
+        setCardCzar(data.data.card_czar)
+        let spots = (data.data.black_card.match(/_____/g) || []).length;
+        setSpotCount(spots === 0 ? 1 : spots)
+        break;
+      case "card_played":
+        cardsPlayed.push(data.data)
+        setCardsPlayed(cardsPlayed)
+        break;
+      default:
+        break;
+    }
+    forceUpdate()
+  }
   const {
     sendMessage,
-    lastMessage,
     readyState,
-  } = useWebSocket(socketUrl);
+  } = useWebSocket(socketUrl, {
+    onMessage: onMessageRecived
+  });
 
-  messageHistory.current = useMemo(() =>
-    messageHistory.current.concat(lastMessage), [lastMessage]);
 
   const handleClickChangeSocketUrl = () => {
     setSocketUrl(`ws://localhost:1234/games/${gameName}/players/${playerName}`)
   }
 
-  const handleClickSendMessage = () =>
-    sendMessage('Hello');
+  const playCard = () => {
+    sendMessage(`{"type":"play_card","data":{"cards":${JSON.stringify(selectedCards)}}}`);
+    for (const card in selectedCards) {
+      const index = playerCards.indexOf(card);
+      if (index > -1) {
+        playerCards.splice(index, 1);
+      }
+    }
+    setPlayerCards(playerCards)
+    setSelectedCards([])
+    setPlayed(true)
+  }
+
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: 'Connecting',
@@ -45,22 +86,28 @@ function App() {
   }[readyState];
 
 
-const toggleSelectedCard = card => {
-  if(selectedCards.includes(card)){
-    const index = selectedCards.indexOf(card);
-    if (index > -1) {
-      selectedCards.splice(index, 1);
+  const toggleSelectedCard = card => {
+    if (cardCzar === playerName || blackCard === "") {
+      return;
     }
-  } else {
-    selectedCards.push(card)
+    if (selectedCards.includes(card)) {
+      const index = selectedCards.indexOf(card);
+      if (index > -1) {
+        selectedCards.splice(index, 1);
+      }
+    } else {
+      if (selectedCards.length >= spotCount) {
+        return;
+      }
+      selectedCards.push(card)
+    }
+    setSelectedCards(selectedCards)
+    forceUpdate()
   }
-  setSelectedCards(selectedCards)
-  forceUpdate()
-} 
 
 
   return (
-    <div className="App container">
+    <div className="App">
       <header>
         {readyState !== ReadyState.OPEN &&
           <Form.Group>
@@ -74,42 +121,48 @@ const toggleSelectedCard = card => {
       </header>
       {readyState === ReadyState.OPEN &&
         <main className="row">
-          <div className="player-list col-2">
-            <h3>Players</h3>
-            <ul className="">
-              {playerList.map(x => <li className="player-list-player">{x.name}:{x.score}</li>)}
-            </ul>
-          </div>
-          <div className="player-cards col-10">
-            <h2>Your Cards</h2>
-            <div className="player-cards-box">
-              {playerCards.map(x =>
-                <Card className={"player-cards-card " + (selectedCards.includes(x) ? "player-cards-card-selected": "")} onClick={() => toggleSelectedCard(x)}>
+          <div className="desk col-12">
+            <h3>Desk - Czar:{cardCzar}</h3>
+            <div className="cards-box">
+              {blackCard && <Card className="cards-card black-card">
+                <Card.Body>
+                  <Card.Text>{blackCard}</Card.Text>
+                </Card.Body>
+              </Card >}
+              {cardsPlayed.map(x =>
+                <Card className="cards-card ">
                   <Card.Body>
-                    <Card.Title>{x}</Card.Title>
+                    <Card.Text>x</Card.Text>
+                  </Card.Body>
+                </Card >
+              )}
+            </div>
+          </div>
+          <div className="player-list col-12">
+            <h3>Players</h3>
+            <p>
+              {Object.keys(playerList).map(x => <span className="player-list-player">{x}:{playerList[x]}&nbsp;&nbsp;</span>)}
+            </p>
+          </div>
+          <div className="player-cards col-12">
+            <h2>Your Cards</h2>
+            <div className="cards-box">
+              {playerCards.map(x =>
+                <Card className={"cards-card " + (selectedCards.includes(x) ? "player-cards-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
+                  <Card.Body>
+                    <Card.Title>{selectedCards.indexOf(x) > -1 ? selectedCards.indexOf(x) + 1 : ""}</Card.Title>
+                    <Card.Text>{x}</Card.Text>
                   </Card.Body>
                 </Card >)}
             </div>
-            <Button onClick={handleClickChangeSocketUrl} disabled={selectedCards.length === 0}>
+            <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
               Play Cards
             </Button>
           </div>
         </main>
       }
       <div>
-        <Button
-          onClick={handleClickSendMessage}
-          disabled={readyState !== ReadyState.OPEN}
-        >
-          Click Me to send 'Hello'
-      </Button>
         <span>The WebSocket is currently {connectionStatus}</span>
-        {lastMessage != null ? <span>Last message: {lastMessage.data}</span> : null}
-        <ul>
-          {messageHistory.current
-            .map((message, idx) => message != null ? <div key={idx}>{message.data}</div> : null)}
-        </ul>
-        {/* JSON.stringify(data, null, 2)  */}
       </div>
     </div>
   );

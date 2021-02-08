@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
@@ -16,13 +16,14 @@ function App() {
   const [gameName, setGameName] = useState('our_super_game');
   const [playerName, setPlayerName] = useState('');
   const [playerCards, setPlayerCards] = useState([]);
-  const [playerList, setPlayerList] = useState({});
+  const [playerMap, setPlayerMap] = useState({});
   const [selectedCards, setSelectedCards] = useState([]);
   const [blackCard, setBlackCard] = useState("");
   const [spotCount, setSpotCount] = useState(0);
   const [cardsPlayed, setCardsPlayed] = useState([]);
   const [cardCzar, setCardCzar] = useState("");
   const [played, setPlayed] = useState(false);
+  const [decisionTime, setDecisionTime] = useState(false);
   const forceUpdate = useForceUpdate();
 
   const onMessageRecived = (msg) => {
@@ -34,9 +35,11 @@ function App() {
         setPlayerCards(playerCards)
         break;
       case "players":
-        setPlayerList(data.data)
+        setPlayerMap(data.data)
         break;
       case "round_info":
+        setPlayed(false)
+        setCardsPlayed([])
         setBlackCard(data.data.black_card)
         setCardCzar(data.data.card_czar)
         let spots = (data.data.black_card.match(/_____/g) || []).length;
@@ -45,6 +48,9 @@ function App() {
       case "card_played":
         cardsPlayed.push(data.data)
         setCardsPlayed(cardsPlayed)
+        if (cardsPlayed.length == Object.keys(playerMap).length - 1) {
+          setDecisionTime(true)
+        }
         break;
       default:
         break;
@@ -105,6 +111,12 @@ function App() {
     forceUpdate()
   }
 
+  const selectWinningCards = (cards) => {
+    if (cardCzar !== playerName) {
+      sendMessage(`{"type":"choose_winner","data":{"cards":${JSON.stringify(cards)}}}`);
+    }
+  }
+
 
   return (
     <div className="App">
@@ -122,26 +134,29 @@ function App() {
       {readyState === ReadyState.OPEN &&
         <main className="row">
           <div className="desk col-12">
-            <h3>Desk - Czar:{cardCzar}</h3>
+            <h3>Desk - Czar:{cardCzar === playerName? `${cardCzar}(you)`: cardCzar}</h3>
             <div className="cards-box">
               {blackCard && <Card className="cards-card black-card">
                 <Card.Body>
                   <Card.Text>{blackCard}</Card.Text>
                 </Card.Body>
               </Card >}
-              {cardsPlayed.map(x =>
-                <Card className="cards-card ">
-                  <Card.Body>
-                    <Card.Text>x</Card.Text>
-                  </Card.Body>
-                </Card >
+              {cardsPlayed.map(cards =>
+                <div onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
+                  cards.map(card =>
+                    <Card className="cards-card ">
+                      <Card.Body>
+                        <Card.Text>{decisionTime && card}</Card.Text>
+                      </Card.Body>
+                    </Card >
+                  )}</div>
               )}
             </div>
           </div>
           <div className="player-list col-12">
             <h3>Players</h3>
             <p>
-              {Object.keys(playerList).map(x => <span className="player-list-player">{x}:{playerList[x]}&nbsp;&nbsp;</span>)}
+              {Object.keys(playerMap).map(x => <span className="player-list-player">{x === playerName? `${x}(you)`: x}:{playerMap[x]}&nbsp;&nbsp;</span>)}
             </p>
           </div>
           <div className="player-cards col-12">

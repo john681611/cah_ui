@@ -48,7 +48,7 @@ function App() {
       case "card_played":
         cardsPlayed.push(data.data)
         setCardsPlayed(cardsPlayed)
-        if (cardsPlayed.length == Object.keys(playerMap).length - 1) {
+        if (cardsPlayed.length === Object.keys(playerMap).length - 1) {
           setDecisionTime(true)
         }
         break;

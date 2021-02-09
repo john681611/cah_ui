@@ -12,11 +12,13 @@ function useForceUpdate() {
 }
 
 function App() {
+  const [baseServer, setBaseServer] = useState("localhost:1234")
   const [boxes, setBoxes] = useState([
     "cah: red box expansion",
     "cah: green box expansion",
     "cah: blue box expansion"
   ]);
+  const [selectedBoxes, setSelectedBoxes] = useState([]);
   const [socketUrl, setSocketUrl] = useState('wss://localhost');
   const [gameName, setGameName] = useState('our_super_game');
   const [playerName, setPlayerName] = useState('');
@@ -71,7 +73,7 @@ function App() {
 
 
   const handleClickChangeSocketUrl = () => {
-    setSocketUrl(`ws://localhost:1234/games/${gameName}/players/${playerName}`)
+    setSocketUrl(`ws://${baseServer}/games/${gameName}/players/${playerName}`)
   }
 
   const playCard = () => {
@@ -116,12 +118,13 @@ function App() {
     }
   }
 
+
   const startGame = () => {
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     };
-    fetch(`http://localhost:1234/games/${gameName}/start`, requestOptions)
+    fetch(`http://${baseServer}/games/${gameName}/start`, requestOptions)
   }
 
   const CreateGame = () => {
@@ -133,7 +136,7 @@ function App() {
         "boxes": boxes
       })
     };
-    fetch(`http://localhost:1234/games`, requestOptions)
+    fetch(`http://${baseServer}/games`, requestOptions)
     handleClickChangeSocketUrl()
   }
 
@@ -141,9 +144,19 @@ function App() {
     const requestOptions = {
       method: 'GET',
     };
-    let data = fetch(`http://localhost:1234/boxes`, requestOptions)
+    let data = fetch(`http://${baseServer}/boxes`, requestOptions)
       .then(response => response.json())
       .then(data => setBoxes(data.data));
+  }
+
+  const toggleBox = (box) => {
+    if (selectedBoxes.includes(box)) {
+      setSelectedBoxes(selectedBoxes.filter(x => x != box))
+    } else {
+      selectedBoxes.push(box)
+      setSelectedBoxes(selectedBoxes)
+    }
+    forceUpdate()
   }
 
 
@@ -158,7 +171,18 @@ function App() {
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>
               Connect to Game
             </Button>
-            &nbsp;&nbsp;
+            <div className="boxGrid">
+              {boxes.map(x =>
+                <Form.Check
+                  className="box"
+                  type="checkbox"
+                  id={x}
+                  checked={selectedBoxes.includes(x)}
+                  label={x}
+                  onChange={() => toggleBox(x)}
+                />
+              )}
+            </div>
             <Button onClick={CreateGame} disabled={gameName === "" || playerName === ""}>
               Create Game
             </Button>

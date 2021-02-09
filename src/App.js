@@ -70,14 +70,8 @@ function App() {
   }
 
   const playCard = () => {
+    setPlayerCards(playerCards.filter(x => !selectedCards.includes(x)))
     sendMessage(`{"type":"play_card","data":{"cards":${JSON.stringify(selectedCards)}}}`);
-    for (const card in selectedCards) {
-      const index = playerCards.indexOf(card);
-      if (index > -1) {
-        playerCards.splice(index, 1);
-      }
-    }
-    setPlayerCards(playerCards)
     setSelectedCards([])
     setPlayed(true)
   }
@@ -112,7 +106,7 @@ function App() {
   }
 
   const selectWinningCards = (cards) => {
-    if (cardCzar !== playerName) {
+    if (cardCzar === playerName) {
       sendMessage(`{"type":"choose_winner","data":{"cards":${JSON.stringify(cards)}}}`);
     }
   }
@@ -133,6 +127,12 @@ function App() {
       </header>
       {readyState === ReadyState.OPEN &&
         <main className="row">
+          <div className="player-list col-12">
+            <h3>Players</h3>
+            <p>
+              {Object.keys(playerMap).map(x => <span className="player-list-player">{x === playerName? `${x}(you)`: x}:{playerMap[x]}&nbsp;&nbsp;</span>)}
+            </p>
+          </div>
           <div className="desk col-12">
             <h3>Desk - Czar:{cardCzar === playerName? `${cardCzar}(you)`: cardCzar}</h3>
             <div className="cards-box">
@@ -153,14 +153,11 @@ function App() {
               )}
             </div>
           </div>
-          <div className="player-list col-12">
-            <h3>Players</h3>
-            <p>
-              {Object.keys(playerMap).map(x => <span className="player-list-player">{x === playerName? `${x}(you)`: x}:{playerMap[x]}&nbsp;&nbsp;</span>)}
-            </p>
-          </div>
           <div className="player-cards col-12">
-            <h2>Your Cards</h2>
+            <h2>Your Cards <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
+              Play Cards
+            </Button></h2>
+            
             <div className="cards-box">
               {playerCards.map(x =>
                 <Card className={"cards-card " + (selectedCards.includes(x) ? "player-cards-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
@@ -170,9 +167,6 @@ function App() {
                   </Card.Body>
                 </Card >)}
             </div>
-            <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
-              Play Cards
-            </Button>
           </div>
         </main>
       }

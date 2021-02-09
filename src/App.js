@@ -121,7 +121,7 @@ function App() {
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>
               Connect to Game
-        </Button>
+            </Button>
           </Form.Group>
         }
       </header>

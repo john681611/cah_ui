@@ -12,6 +12,11 @@ function useForceUpdate() {
 }
 
 function App() {
+  const [boxes, setBoxes] = useState([
+    "cah: red box expansion",
+    "cah: green box expansion",
+    "cah: blue box expansion"
+  ]);
   const [socketUrl, setSocketUrl] = useState('wss://localhost');
   const [gameName, setGameName] = useState('our_super_game');
   const [playerName, setPlayerName] = useState('');
@@ -111,16 +116,51 @@ function App() {
     }
   }
 
+  const startGame = () => {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    };
+    fetch(`http://localhost:1234/games/${gameName}/start`, requestOptions)
+  }
+
+  const CreateGame = () => {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      Body: JSON.stringify({
+        name: gameName,
+        "boxes": boxes
+      })
+    };
+    fetch(`http://localhost:1234/games`, requestOptions)
+    handleClickChangeSocketUrl()
+  }
+
+  const getBoxes = () => {
+    const requestOptions = {
+      method: 'GET',
+    };
+    let data = fetch(`http://localhost:1234/boxes`, requestOptions)
+      .then(response => response.json())
+      .then(data => setBoxes(data.data));
+  }
+
 
   return (
     <div className="App">
       <header>
         {readyState !== ReadyState.OPEN &&
           <Form.Group>
+            Join Game
             <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" />
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>
               Connect to Game
+            </Button>
+            &nbsp;&nbsp;
+            <Button onClick={CreateGame} disabled={gameName === "" || playerName === ""}>
+              Create Game
             </Button>
           </Form.Group>
         }
@@ -130,17 +170,21 @@ function App() {
           <div className="player-list col-12">
             <h3>Players</h3>
             <p>
-              {Object.keys(playerMap).map(x => <span className="player-list-player">{x === playerName? `${x}(you)`: x}:{playerMap[x]}&nbsp;&nbsp;</span>)}
+              {Object.keys(playerMap).map(x => <span className="player-list-player">{x === playerName ? `${x}(you)` : x}:{playerMap[x]}&nbsp;&nbsp;</span>)}
             </p>
           </div>
           <div className="desk col-12">
-            <h3>Desk - Czar:{cardCzar === playerName? `${cardCzar}(you)`: cardCzar}</h3>
+            <h3>Desk - Czar:{cardCzar === playerName ? `${cardCzar}(you)` : cardCzar}</h3>
             <div className="cards-box">
               {blackCard && <Card className="cards-card black-card">
                 <Card.Body>
                   <Card.Text>{blackCard}</Card.Text>
                 </Card.Body>
               </Card >}
+              {!blackCard &&
+                <Button onClick={startGame}>
+                  Start Game
+                </Button>}
               {cardsPlayed.map(cards =>
                 <div onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
                   cards.map(card =>
@@ -157,7 +201,7 @@ function App() {
             <h2>Your Cards <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
               Play Cards
             </Button></h2>
-            
+
             <div className="cards-box">
               {playerCards.map(x =>
                 <Card className={"cards-card " + (selectedCards.includes(x) ? "player-cards-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>

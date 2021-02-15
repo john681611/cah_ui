@@ -12,12 +12,8 @@ function useForceUpdate() {
 }
 
 function App() {
-  const [baseServer, setBaseServer] = useState("localhost:1234")
-  const [boxes, setBoxes] = useState([
-    "cah: red box expansion",
-    "cah: green box expansion",
-    "cah: blue box expansion"
-  ]);
+  const [baseServer, setBaseServer] = useState("cah.robreid.xyz")
+  const [boxes, setBoxes] = useState([]);
   const [selectedBoxes, setSelectedBoxes] = useState([]);
   const [socketUrl, setSocketUrl] = useState('wss://localhost');
   const [gameName, setGameName] = useState('our_super_game');
@@ -124,7 +120,7 @@ function App() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     };
-    fetch(`http://${baseServer}/games/${gameName}/start`, requestOptions)
+    fetch(`https://${baseServer}/games/${gameName}/start`, requestOptions)
   }
 
   const CreateGame = () => {
@@ -136,18 +132,22 @@ function App() {
         "boxes": boxes
       })
     };
-    fetch(`http://${baseServer}/games`, requestOptions)
+    fetch(`https://${baseServer}/games`, requestOptions)
     handleClickChangeSocketUrl()
   }
 
   const getBoxes = () => {
+    if(boxes.length > 0){
+      return;
+    }
     const requestOptions = {
       method: 'GET',
     };
-    let data = fetch(`http://${baseServer}/boxes`, requestOptions)
+    let data = fetch(`https://${baseServer}/boxes`, requestOptions)
       .then(response => response.json())
       .then(data => setBoxes(data.data));
   }
+  getBoxes()
 
   const toggleBox = (box) => {
     if (selectedBoxes.includes(box)) {
@@ -166,21 +166,19 @@ function App() {
         {readyState !== ReadyState.OPEN &&
           <Form.Group>
             Join Game
+            <Form.Control as="input" value={baseServer} onChange={e => setBaseServer(e.target.value)} placeholder="Game Server" />
             <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" />
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>
               Connect to Game
             </Button>
-            <div className="boxGrid">
+            <div className="box-grid">
               {boxes.map(x =>
-                <Form.Check
-                  className="box"
-                  type="checkbox"
-                  id={x}
-                  checked={selectedBoxes.includes(x)}
-                  label={x}
-                  onChange={() => toggleBox(x)}
-                />
+                <Card className={"box " + (selectedBoxes.includes(x) ? "box-selected" : "")} onClick={() => toggleBox(x)}>
+                  <Card.Body>
+                    <Card.Text>{x}</Card.Text>
+                  </Card.Body>
+                </Card >
               )}
             </div>
             <Button onClick={CreateGame} disabled={gameName === "" || playerName === ""}>

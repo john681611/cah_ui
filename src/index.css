@@ -22,18 +22,18 @@ code {
   display: flex;
   flex-wrap: wrap
 }
-.cards-card {
+.cards-card, .box {
   min-height: 200px;
   max-width: 200px;
   padding: 20px;
   margin: 10px;
 }
 
-.player-cards-card:hover {
+.player-cards-card:hover, .box:hover {
   border-color: black;
 }
 
-.player-cards-card-selected {
+.player-cards-card-selected, .box-selected {
   border-color: orange;
   border-width: 2px;
 }
@@ -43,6 +43,12 @@ code {
   background-color: black;
 }
 
+.box-grid {
+  max-height: 60vh;
+  overflow-y: scroll;
+}
+
 .box {
-  text-align: left;
+  border-top-width: 4px;
+  border-right-width: 4px;
 }

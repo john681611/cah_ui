@@ -129,7 +129,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       Body: JSON.stringify({
         name: gameName,
-        "boxes": boxes
+        boxes: selectedBoxes
       })
     };
     fetch(`https://${baseServer}/games`, requestOptions)
@@ -143,7 +143,7 @@ function App() {
     const requestOptions = {
       method: 'GET',
     };
-    let data = fetch(`https://${baseServer}/boxes`, requestOptions)
+    let data = fetch(`http://${baseServer}/boxes`, requestOptions)
       .then(response => response.json())
       .then(data => setBoxes(data.data));
   }

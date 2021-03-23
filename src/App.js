@@ -173,9 +173,9 @@ function App() {
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>
               Connect to Game
             </Button>
-            <div className="box-grid">
+            <div className="cards-box">
               {boxes.map(x =>
-                <Card className={"box " + (selectedBoxes.includes(x) ? "box-selected" : "")} onClick={() => toggleBox(x)}>
+                <Card className={"base-card " + (selectedBoxes.includes(x) ? "box-selected" : "")} onClick={() => toggleBox(x)}>
                   <Card.Body>
                     <Card.Text>{x}</Card.Text>
                   </Card.Body>
@@ -200,7 +200,7 @@ function App() {
           <div className="desk col-12">
             <h3>Desk - Czar:{cardCzar === playerName ? `${cardCzar}(you)` : cardCzar}</h3>
             <div className="cards-box">
-              {blackCard && <Card className="cards-card black-card">
+              {blackCard && <Card className="base-card black-card">
                 <Card.Body>
                   <Card.Text>{blackCard}</Card.Text>
                 </Card.Body>
@@ -212,7 +212,7 @@ function App() {
               {cardsPlayed.map(cards =>
                 <div onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
                   cards.map(card =>
-                    <Card className="cards-card">
+                    <Card className="base-card">
                       <Card.Body>
                         <Card.Text>{decisionTime && card}</Card.Text>
                       </Card.Body>
@@ -228,7 +228,7 @@ function App() {
 
             <div className="cards-box">
               {playerCards.map(x =>
-                <Card className={"cards-card " + (selectedCards.includes(x) ? "player-cards-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
+                <Card className={"base-card " + (selectedCards.includes(x) ? "player-base-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
                   <Card.Body>
                     <Card.Title>{selectedCards.indexOf(x) > -1 ? selectedCards.indexOf(x) + 1 : ""}</Card.Title>
                     <Card.Text>{x}</Card.Text>

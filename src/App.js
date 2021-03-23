@@ -144,7 +144,7 @@ function App() {
     const requestOptions = {
       method: 'GET',
     };
-    let data = fetch(`http://${baseServer}/boxes`, requestOptions)
+    let data = fetch(`https://${baseServer}/boxes`, requestOptions)
       .then(response => response.json())
       .then(data => setBoxes(data.data));
   }

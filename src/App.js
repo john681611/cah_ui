@@ -69,7 +69,7 @@ function App() {
 
 
   const handleClickChangeSocketUrl = () => {
-    setSocketUrl(`ws://${baseServer}/games/${gameName}/players/${playerName}`)
+    setSocketUrl(`wss://${baseServer}/games/${gameName}/players/${playerName}`)
   }
 
   const playCard = () => {
@@ -127,7 +127,7 @@ function App() {
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      Body: JSON.stringify({
+      body: JSON.stringify({
         name: gameName,
         boxes: selectedBoxes
       })

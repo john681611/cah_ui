@@ -42,10 +42,11 @@ function App() {
         break;
       case "round_info":
         setPlayed(false)
+        setDecisionTime(false)
         setCardsPlayed([])
         setBlackCard(data.data.black_card)
         setCardCzar(data.data.card_czar)
-        let spots = (data.data.black_card.match(/_____/g) || []).length;
+        let spots = (data.data.black_card.match(/_*/g) || []).length;
         setSpotCount(spots === 0 ? 1 : spots)
         break;
       case "card_played":
@@ -189,6 +190,7 @@ function App() {
       </header>
       {readyState === ReadyState.OPEN &&
         <main className="row">
+          <h3>Game: {gameName}</h3>
           <div className="player-list col-12">
             <h3>Players</h3>
             <p>
@@ -210,7 +212,7 @@ function App() {
               {cardsPlayed.map(cards =>
                 <div onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
                   cards.map(card =>
-                    <Card className="cards-card ">
+                    <Card className="cards-card">
                       <Card.Body>
                         <Card.Text>{decisionTime && card}</Card.Text>
                       </Card.Body>

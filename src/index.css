@@ -23,7 +23,8 @@ code {
   flex-wrap: wrap
 }
 .cards-card, .box {
-  min-height: 200px;
+  border-radius: 3%;
+  min-height: 280px;
   max-width: 200px;
   padding: 20px;
   margin: 10px;
@@ -49,6 +50,6 @@ code {
 }
 
 .box {
-  border-top-width: 4px;
-  border-right-width: 4px;
+  border-top-width: 3px;
+  border-right-width: 3px;
 }

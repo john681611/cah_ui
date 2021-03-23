@@ -46,7 +46,7 @@ function App() {
         setCardsPlayed([])
         setBlackCard(data.data.black_card)
         setCardCzar(data.data.card_czar)
-        let spots = (data.data.black_card.match(/_*/g) || []).length;
+        let spots = (data.data.black_card.match(/_+( |\.)/g) || []).length;
         setSpotCount(spots === 0 ? 1 : spots)
         break;
       case "card_played":

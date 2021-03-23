@@ -12,6 +12,7 @@ function useForceUpdate() {
 }
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
   const [baseServer, setBaseServer] = useState("cah.robreid.xyz")
   const [boxes, setBoxes] = useState([]);
   const [selectedBoxes, setSelectedBoxes] = useState([]);
@@ -161,8 +162,15 @@ function App() {
   }
 
 
+
+
   return (
-    <div className="App">
+    <div className={"App " + (darkMode ? "dark-mode" : "")}>
+      <div class="light-swich">
+        <label class="fa fa-lightbulb-o"> 
+            <input type="checkbox" onChange={e => setDarkMode(e.target.checked)}/>
+        </label>
+      </div>
       <header>
         {readyState !== ReadyState.OPEN &&
           <Form.Group>

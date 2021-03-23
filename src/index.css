@@ -1,5 +1,4 @@
 body {
-  margin: 20px;
   font-family: "HelveticaNeue", "Helvetica Neue", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
   font-weight: bold;
 }
@@ -7,6 +6,10 @@ body {
 .player-cards, .desk {
   border: solid black 1px;
   padding: 20px;
+}
+
+.form-control, .btn, .deck-box {
+  margin-top: 10px;
 }
 
 .deck-box {
@@ -44,4 +47,40 @@ body {
 .black-card {
   color: white;
   background-color: black;
+}
+
+
+/* DARK MODE */
+.dark-mode {
+  background-color: rgba(20, 30, 35, 1);
+  color: #d7d7d7ff;
+}
+
+.dark-mode .base-card {
+  color: black;
+}
+
+.dark-mode .black-card {
+  color: white;
+}
+
+.dark-mode .form-control {
+  background-color: rgba(40, 40, 40, 1);
+  color: white;
+}
+
+.dark-mode .light-swich {
+  color: #fff;
+}
+
+.light-swich {
+  font-size: x-large;
+  color: grey;
+  text-align: center;
+  float: right;
+  padding: 10px;
+}
+
+.light-swich input {
+  display: none;
 }

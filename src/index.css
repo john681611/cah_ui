@@ -9,11 +9,14 @@ body {
   padding: 20px;
 }
 
+.deck-box {
+  max-height: 60vh;
+  overflow-y: scroll
+}
+
 .cards-box {
   display: flex;
   flex-wrap: wrap;
-  max-height: 60vh;
-  overflow-y: scroll
 }
 
 .base-card {
@@ -21,22 +24,21 @@ body {
   flex-grow: 0;
   text-align: left;
   border-radius: 3%;
-  min-height: 280px;
-  min-width: 200px;
-  max-width: 200px;
+  min-height: 231px;
+  min-width: 165px;
+  max-width: 165px;
   padding: 10px;
   margin: 5px;
   border-top-width: 3px;
   border-right-width: 3px;
 }
 
-.player-cards-card:hover, .box:hover {
+.base-card:hover {
   border-color: black;
 }
 
-.player-cards-card-selected, .box-selected {
+.base-card-selected {
   border-color: orange;
-  border-width: 2px;
 }
 
 .black-card {

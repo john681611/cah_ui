@@ -173,9 +173,9 @@ function App() {
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>
               Connect to Game
             </Button>
-            <div className="cards-box">
+            <div className="cards-box deck-box">
               {boxes.map(x =>
-                <Card className={"base-card " + (selectedBoxes.includes(x) ? "box-selected" : "")} onClick={() => toggleBox(x)}>
+                <Card className={"base-card " + (selectedBoxes.includes(x) ? "base-card-selected" : "")} onClick={() => toggleBox(x)}>
                   <Card.Body>
                     <Card.Text>{x}</Card.Text>
                   </Card.Body>
@@ -228,7 +228,7 @@ function App() {
 
             <div className="cards-box">
               {playerCards.map(x =>
-                <Card className={"base-card " + (selectedCards.includes(x) ? "player-base-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
+                <Card className={"base-card " + (selectedCards.includes(x) ? "base-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
                   <Card.Body>
                     <Card.Title>{selectedCards.indexOf(x) > -1 ? selectedCards.indexOf(x) + 1 : ""}</Card.Title>
                     <Card.Text>{x}</Card.Text>

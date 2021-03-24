@@ -4,7 +4,7 @@ body {
 }
 
 .player-cards, .desk {
-  border: solid black 1px;
+  border-bottom: solid black 1px;
   padding: 20px;
 }
 
@@ -44,9 +44,19 @@ body {
   border-color: orange;
 }
 
+.base-card-selected:hover {
+  border-color: darkgoldenrod;
+}
+
 .black-card {
   color: white;
   background-color: black;
+}
+
+.selected-counter {
+  position: absolute;
+  top: 2px;
+  left: 2px;
 }
 
 
@@ -67,6 +77,10 @@ body {
 .dark-mode .form-control {
   background-color: rgba(40, 40, 40, 1);
   color: white;
+}
+
+.dark-mode .player-cards, .dark-mode .desk {
+  border-bottom: solid white 1px;
 }
 
 .dark-mode .light-swich {

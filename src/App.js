@@ -238,7 +238,7 @@ function App() {
               {playerCards.map(x =>
                 <Card className={"base-card " + (selectedCards.includes(x) ? "base-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
                   <Card.Body>
-                    <Card.Title>{selectedCards.indexOf(x) > -1 ? selectedCards.indexOf(x) + 1 : ""}</Card.Title>
+                    <span className="selected-counter">{selectedCards.indexOf(x) > -1 && spotCount > 1 ? selectedCards.indexOf(x) + 1 : ""}</span>
                     <Card.Text>{x}</Card.Text>
                   </Card.Body>
                 </Card >)}

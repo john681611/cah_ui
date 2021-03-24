@@ -139,7 +139,7 @@ function App() {
   }
 
   const getBoxes = () => {
-    if(boxes.length > 0){
+    if (boxes.length > 0) {
       return;
     }
     const requestOptions = {
@@ -153,7 +153,7 @@ function App() {
 
   const toggleBox = (box) => {
     if (selectedBoxes.includes(box)) {
-      setSelectedBoxes(selectedBoxes.filter(x => x != box))
+      setSelectedBoxes(selectedBoxes.filter(x => x !== box))
     } else {
       selectedBoxes.push(box)
       setSelectedBoxes(selectedBoxes)
@@ -167,14 +167,14 @@ function App() {
   return (
     <div className={"App " + (darkMode ? "dark-mode" : "")}>
       <div class="light-swich">
-        <label class="fa fa-lightbulb-o"> 
-            <input type="checkbox" onChange={e => setDarkMode(e.target.checked)}/>
+        <label class="fa fa-lightbulb-o">
+          <input type="checkbox" onChange={e => setDarkMode(e.target.checked)} />
         </label>
       </div>
       <header>
         {readyState !== ReadyState.OPEN &&
           <Form.Group>
-            Join Game
+            <h1>Cards Against Humanity</h1>
             <Form.Control as="input" value={baseServer} onChange={e => setBaseServer(e.target.value)} placeholder="Game Server" />
             <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" />
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />

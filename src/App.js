@@ -172,9 +172,9 @@ function App() {
         </label>
       </div>
       <header>
+        <h1>Cards Against Humanity</h1>
         {readyState !== ReadyState.OPEN &&
           <Form.Group>
-            <h1>Cards Against Humanity</h1>
             <Form.Control as="input" value={baseServer} onChange={e => setBaseServer(e.target.value)} placeholder="Game Server" />
             <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" />
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
@@ -230,18 +230,20 @@ function App() {
             </div>
           </div>
           <div className="player-cards col-12">
-            <h2>Your Cards <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
-              Play Cards
-            </Button></h2>
+              <h2>Your Cards</h2>
+              <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
+                Play Cards
+              </Button>
 
-            <div className="cards-box">
-              {playerCards.map(x =>
-                <Card className={"base-card " + (selectedCards.includes(x) ? "base-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
-                  <Card.Body>
-                    <span className="selected-counter">{selectedCards.indexOf(x) > -1 && spotCount > 1 ? selectedCards.indexOf(x) + 1 : ""}</span>
-                    <Card.Text>{x}</Card.Text>
-                  </Card.Body>
-                </Card >)}
+              <div className="cards-box">
+                {playerCards.map(x =>
+                  <Card className={"base-card " + (selectedCards.includes(x) ? "base-card-selected" : "")} onClick={() => toggleSelectedCard(x)}>
+                    <Card.Body>
+                      <span className="selected-counter">{selectedCards.indexOf(x) > -1 && spotCount > 1 ? selectedCards.indexOf(x) + 1 : ""}</span>
+                      <Card.Text>{x}</Card.Text>
+                    </Card.Body>
+                  </Card >)}
+              {cardCzar === playerName && <div className="card-czar-overlay">You're Card Czar!</div>}
             </div>
           </div>
         </main>

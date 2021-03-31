@@ -13,7 +13,7 @@ function useForceUpdate() {
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [baseServer, setBaseServer] = useState("cah.robreid.xyz")
+  const [baseServer, setBaseServer] = useState("cah-backend.robreid.xyz")
   const [boxes, setBoxes] = useState([]);
   const [selectedBoxes, setSelectedBoxes] = useState([]);
   const [socketUrl, setSocketUrl] = useState('wss://localhost');
@@ -35,23 +35,23 @@ function App() {
     let data = JSON.parse(msg.data)
     switch (data.type) {
       case "card_replenishment":
-        playerCards.push(...data.data)
+        playerCards.push(...data.cards)
         setPlayerCards(playerCards)
         break;
       case "players":
-        setPlayerMap(data.data)
+        setPlayerMap(data.players)
         break;
-      case "round_info":
+      case "new_round":
         setPlayed(false)
         setDecisionTime(false)
         setCardsPlayed([])
-        setBlackCard(data.data.black_card)
-        setCardCzar(data.data.card_czar)
-        let spots = (data.data.black_card.match(/_+( |\.)/g) || []).length;
+        setBlackCard(data.black_card)
+        setCardCzar(data.czar)
+        let spots = (blackCard.match(/_+( |\.)/g) || []).length;
         setSpotCount(spots === 0 ? 1 : spots)
         break;
-      case "card_played":
-        cardsPlayed.push(data.data)
+      case "cards_played":
+        cardsPlayed.push(data.player)
         setCardsPlayed(cardsPlayed)
         if (cardsPlayed.length === Object.keys(playerMap).length - 1) {
           setDecisionTime(true)
@@ -147,7 +147,7 @@ function App() {
     };
     let data = fetch(`https://${baseServer}/boxes`, requestOptions)
       .then(response => response.json())
-      .then(data => setBoxes(data.data));
+      .then(data => setBoxes(data.boxes));
   }
   getBoxes()
 
@@ -175,7 +175,7 @@ function App() {
         <h1>Cards Against Humanity</h1>
         {readyState !== ReadyState.OPEN &&
           <Form.Group>
-            <Form.Control as="input" value={baseServer} onChange={e => setBaseServer(e.target.value)} placeholder="Game Server" />
+            {/* <Form.Control as="input" value={baseServer} onChange={e => setBaseServer(e.target.value)} placeholder="Game Server" /> */}
             <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" />
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
             <Button onClick={handleClickChangeSocketUrl} disabled={gameName === "" || playerName === ""}>

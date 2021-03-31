@@ -38,7 +38,7 @@ function App() {
         playerCards.push(...data.cards)
         setPlayerCards(playerCards)
         break;
-      case "players":
+      case "player_scores":
         setPlayerMap(data.players)
         break;
       case "new_round":
@@ -51,7 +51,7 @@ function App() {
         setSpotCount(spots === 0 ? 1 : spots)
         break;
       case "cards_played":
-        cardsPlayed.push(data.player)
+        cardsPlayed.push(data.cards)
         setCardsPlayed(cardsPlayed)
         if (cardsPlayed.length === Object.keys(playerMap).length - 1) {
           setDecisionTime(true)
@@ -65,7 +65,8 @@ function App() {
   const {
     readyState,
   } = useWebSocket(socketUrl, {
-    onMessage: onMessageRecived
+    onMessage: onMessageRecived,
+    onerror: console.log
   });
 
 
@@ -147,7 +148,8 @@ function App() {
         boxes: selectedBoxes
       })
     };
-    fetch(`https://${baseServer}/games`, requestOptions).then(x => handleClickChangeSocketUrl())
+    fetch(`https://${baseServer}/games`, requestOptions)
+    .then(x => handleClickChangeSocketUrl())
     
   }
 
@@ -215,7 +217,10 @@ function App() {
           <div className="player-list col-12">
             <h3>Players</h3>
             <p>
-              {Object.keys(playerMap).map(x => <span className="player-list-player">{x === playerName ? `${x}(you)` : x}:{playerMap[x]}&nbsp;&nbsp;</span>)}
+              { Object.entries(playerMap).map(([name, score]) => 
+              <span className="player-list-player">{name}:
+              {name === playerName && "(you)"} {score}
+              &nbsp;&nbsp;</span>)}
             </p>
           </div>
           <div className="desk col-12">

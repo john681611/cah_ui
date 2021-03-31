@@ -63,7 +63,6 @@ function App() {
     forceUpdate()
   }
   const {
-    sendMessage,
     readyState,
   } = useWebSocket(socketUrl, {
     onMessage: onMessageRecived
@@ -76,7 +75,14 @@ function App() {
 
   const playCard = () => {
     setPlayerCards(playerCards.filter(x => !selectedCards.includes(x)))
-    sendMessage(`{"type":"play_card","data":{"cards":${JSON.stringify(selectedCards)}}}`);
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cards: selectedCards
+      })
+    };
+    fetch(`https://${baseServer}/games/${gameName}/players/${playerName}`, requestOptions)
     setSelectedCards([])
     setPlayed(true)
   }
@@ -112,7 +118,14 @@ function App() {
 
   const selectWinningCards = (cards) => {
     if (cardCzar === playerName) {
-      sendMessage(`{"type":"choose_winner","data":{"cards":${JSON.stringify(cards)}}}`);
+      const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cards: cards
+      })
+    };
+    fetch(`https://${baseServer}/games/${gameName}/winner`, requestOptions)
     }
   }
 
@@ -134,8 +147,8 @@ function App() {
         boxes: selectedBoxes
       })
     };
-    fetch(`https://${baseServer}/games`, requestOptions)
-    handleClickChangeSocketUrl()
+    fetch(`https://${baseServer}/games`, requestOptions).then(x => handleClickChangeSocketUrl())
+    
   }
 
   const getBoxes = () => {
@@ -190,7 +203,7 @@ function App() {
                 </Card >
               )}
             </div>
-            <Button onClick={CreateGame} disabled={gameName === "" || playerName === ""}>
+            <Button onClick={CreateGame} disabled={gameName === "" || playerName === "" || selectedBoxes.length == 0}>
               Create Game
             </Button>
           </Form.Group>

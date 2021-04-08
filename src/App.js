@@ -224,7 +224,7 @@ function App() {
                   Start Game
                 </Button>}
               {cardsPlayed.map(cards =>
-                <div onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
+                <div className="card-group" onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
                   cards.map(card =>
                     <Card key={card} className="base-card">
                       <Card.Body>

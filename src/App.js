@@ -41,7 +41,7 @@ function App() {
     setSpotCount(data.round.white_cards_required)
     setPlayerCards(data.your_cards)
     setDecisionTime(data.round.white_cards.length === (Object.keys(data.player_scores).length - 1))
-    if(data.round.white_cards.length.length === 0) {
+    if(data.round.white_cards.length === 0) {
       setPlayed(false)
     }
     forceUpdate()
@@ -159,6 +159,10 @@ function App() {
     forceUpdate()
   }
 
+  function copyGameLink() {
+    navigator.clipboard.writeText(`https://${baseServer}/?game=${gameName}`)
+  }
+
 
 
 
@@ -202,6 +206,9 @@ function App() {
       {readyState === ReadyState.OPEN &&
         <main className="row">
           <h3>Game: {gameName}</h3>
+          <Button className="share-button" onClick={copyGameLink}>
+            <i class="fa fa-share-alt" aria-hidden="true"></i>
+          </Button>
           <div className="player-list col-12">
             <h3>Players</h3>
             <p>

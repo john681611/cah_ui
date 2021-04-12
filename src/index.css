@@ -36,6 +36,7 @@ h1 {
 .cards-box {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .base-card {
@@ -89,6 +90,14 @@ h1 {
 .deck-box .card {
   min-height: initial;
   margin: 5px;
+}
+
+.accordion {
+  margin: 1em;
+}
+
+.czar-mode, label {
+  margin: .25em
 }
 
 

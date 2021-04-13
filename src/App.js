@@ -19,11 +19,12 @@ function App() {
   const [boxes, setBoxes] = useState([])
   const [selectedBoxes, setSelectedBoxes] = useState([])
   const [socketUrl, setSocketUrl] = useState('wss://localhost')
-  const [gameName, setGameName] = useState(urlParams.get('game') || 'our_super_game')
+  const [gameName, setGameName] = useState(urlParams.get('game') || '')
   const [playerName, setPlayerName] = useState('')
   const [playerCards, setPlayerCards] = useState([])
   const [playerMap, setPlayerMap] = useState({})
   const [selectedCards, setSelectedCards] = useState([])
+  const [selectedWinningCards, setSelectedWinningCards] = useState([])
   const [blackCard, setBlackCard] = useState('')
   const [spotCount, setSpotCount] = useState(0)
   const [cardsPlayed, setCardsPlayed] = useState([])
@@ -31,6 +32,7 @@ function App() {
   const [played, setPlayed] = useState(false)
   const [decisionTime, setDecisionTime] = useState(false)
   const [czarMode, setCzarMode] = useState("winner")
+  const [showCoppied, setShowCoppied] = useState(false)
   const forceUpdate = useForceUpdate()
 
   const onMessageRecived = (msg) => {
@@ -45,6 +47,7 @@ function App() {
     setDecisionTime(data.round.white_cards.length === (Object.keys(data.player_scores).length - 1))
     if(data.round.white_cards.length === 0) {
       setPlayed(false)
+      setSelectedWinningCards([])
     }
     forceUpdate()
   }
@@ -85,7 +88,7 @@ function App() {
 
 
   const toggleSelectedCard = card => {
-    if (cardCzar === playerName || blackCard === '') {
+    if (cardCzar === playerName || blackCard === '' || played) {
       return
     }
     if (selectedCards.includes(card)) {
@@ -103,13 +106,23 @@ function App() {
     forceUpdate()
   }
 
-  const selectWinningCards = (cards) => {
+  const selectWinningCards = cards => {
+    if (cardCzar !== playerName || blackCard === '') {
+      return
+    }
+    setSelectedWinningCards(cards)
+    forceUpdate()
+  }
+
+  
+
+  const confirmWinningCards = () => {
     if (cardCzar === playerName) {
       const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        cards: cards
+        cards: selectedWinningCards
       })
     }
     fetch(`https://${baseServer}/games/${gameName}/winner`, requestOptions)
@@ -164,6 +177,8 @@ function App() {
 
   function copyGameLink() {
     navigator.clipboard.writeText(`https://${window.location.host}/?game=${gameName}`)
+    setShowCoppied(true)
+    setTimeout(() => setShowCoppied(false), 1000)
   }
 
 
@@ -187,7 +202,7 @@ function App() {
               <Accordion defaultActiveKey="1">
               <Card>
                 <Accordion.Toggle as={Card.Header} eventKey="0">
-                  Create Game options <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                  Create Game options <i className="fa fa-chevron-down" aria-hidden="true"></i>
                 </Accordion.Toggle>
                 <Accordion.Collapse eventKey="0">
                   <Card.Body>
@@ -231,7 +246,7 @@ function App() {
             </Accordion>}
             <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" disabled={urlParams.get('game')} />
             <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
-            <Button 
+            <Button className="full-width"
               onClick={() => selectedBoxes.length > 0? CreateGame() : handleClickChangeSocketUrl()} disabled={gameName === '' || playerName === ''}>
               {selectedBoxes.length > 0? "Create Game": "Connect"}
             </Button>
@@ -242,14 +257,15 @@ function App() {
         <main className="row">
           <h3>Game: {gameName}</h3>
           <Button className="share-button" onClick={copyGameLink}>
-            <i class="fa fa-share-alt" aria-hidden="true"></i>
+            <i className="fa fa-share-alt" aria-hidden="true"></i>
+            {showCoppied && <span>&nbsp;&nbsp;Coppied!</span>}
           </Button>
           <div className="player-list col-12">
             <h3>Players</h3>
             <p>
               { Object.entries(playerMap).map(([name, score]) => 
-              <span key={name} className="player-list-player">{name}:
-              {name === playerName && '(you)'} {score}
+              <span key={name} className="player-list-player">
+              {name}{name === playerName && '(you)'}:{score}
               &nbsp;&nbsp;</span>)}
             </p>
           </div>
@@ -262,33 +278,38 @@ function App() {
                 </Card.Body>
               </Card >}
               {!blackCard &&
-                <Button onClick={startGame}>
+                <Button className="full-width" onClick={startGame}>
                   Start Game
                 </Button>}
-              {cardsPlayed.map(cards =>
-                <div className="card-group" onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
+              {cardsPlayed.map(cards => 
+                <div className="card-group" key="cards" onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
                   cards.map(card =>
-                    <Card key={card} className="base-card">
+                    <Card key={card} className={'base-card ' + (selectedWinningCards.includes(card) ? 'base-card-selected' : '')}>
                       <Card.Body>
                         <Card.Text>{decisionTime && card}</Card.Text>
                       </Card.Body>
                     </Card >
                   )}</div>
               )}
+              {selectedWinningCards.length !== 0 &&
+                <Button className="full-width" onClick={confirmWinningCards}>
+                  Confirm Winner
+                </Button>}
             </div>
           </div>
           <div className="player-cards col-12">
               <h2>Your Cards</h2>
-              <Button onClick={playCard} disabled={selectedCards.length !== spotCount || cardCzar === playerName || played}>
+              {selectedCards.length === spotCount && cardCzar != playerName && !played && 
+              <Button className="full-width" onClick={playCard}>
                 Play Cards
-              </Button>
+              </Button>}
 
               <div className="cards-box">
-                {playerCards.map(x =>
-                  <Card key={x} className={'base-card ' + (selectedCards.includes(x) ? 'base-card-selected' : '')} onClick={() => toggleSelectedCard(x)}>
+                {playerCards.map(card =>
+                  <Card key={card} className={'base-card ' + (selectedCards.includes(card) ? 'base-card-selected' : '')} onClick={() => toggleSelectedCard(card)}>
                     <Card.Body>
-                      <span className="selected-counter">{selectedCards.indexOf(x) > -1 && spotCount > 1 ? selectedCards.indexOf(x) + 1 : ''}</span>
-                      <Card.Text>{x}</Card.Text>
+                      <span className="selected-counter">{selectedCards.indexOf(card) > -1 && spotCount > 1 ? selectedCards.indexOf(card) + 1 : ''}</span>
+                      <Card.Text>{card}</Card.Text>
                     </Card.Body>
                   </Card >)}
               {cardCzar === playerName && <div className="card-czar-overlay">You're Card Czar!</div>}

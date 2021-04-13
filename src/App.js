@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
-import Form from 'react-bootstrap/Form'
-import Accordion from 'react-bootstrap/Accordion'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 import './App.css'
+import JoinCreateModal from './JoinCreateModal'
 
 //create your forceUpdate hook
 function useForceUpdate() {
@@ -34,6 +33,7 @@ function App() {
   const [czarMode, setCzarMode] = useState("winner")
   const [showCoppied, setShowCoppied] = useState(false)
   const forceUpdate = useForceUpdate()
+  const [modalShow, setModalShow] = React.useState(false);
 
   const onMessageRecived = (msg) => {
     console.log(msg)
@@ -72,7 +72,7 @@ function App() {
         cards: selectedCards
       })
     }
-    fetch(`https://${baseServer}/games/${gameName}/players/${playerName}`, requestOptions)
+    fetch(`https://${baseServer}/games/${gameName}/players/${playerName}/cards`, requestOptions)
     setSelectedCards([])
     setPlayed(true)
   }
@@ -159,7 +159,7 @@ function App() {
     const requestOptions = {
       method: 'GET',
     }
-    let data = fetch(`https://${baseServer}/boxes`, requestOptions)
+    fetch(`https://${baseServer}/boxes`, requestOptions)
       .then(response => response.json())
       .then(data => setBoxes(data.boxes))
   }
@@ -182,13 +182,12 @@ function App() {
   }
 
 
-
+if (urlParams.get('game') && !modalShow) {
+  setModalShow(true)
+}
 
   return (
     <div className={'App ' + (darkMode ? 'dark-mode' : '')}>
-      <div>
-          <span>The WebSocket is currently {connectionStatus}</span>
-      </div>
       <div className="light-swich">
         <label className="fa fa-lightbulb-o">
           <input type="checkbox" onChange={e => setDarkMode(e.target.checked)} />
@@ -197,60 +196,41 @@ function App() {
       <header>
         <h1>Cards Against Humanity</h1>
         {readyState !== ReadyState.OPEN &&
-          <Form.Group>
-            {!urlParams.get('game') && 
-              <Accordion defaultActiveKey="1">
-              <Card>
-                <Accordion.Toggle as={Card.Header} eventKey="0">
-                  Create Game options <i className="fa fa-chevron-down" aria-hidden="true"></i>
-                </Accordion.Toggle>
-                <Accordion.Collapse eventKey="0">
-                  <Card.Body>
-                    <h4>Box Selection</h4>
-                    <div className="cards-box deck-box">
-                      {boxes.map(x =>
-                        <Card key={x} className={'base-card ' + (selectedBoxes.includes(x) ? 'base-card-selected' : '')} onClick={() => toggleBox(x)}>
-                          <Card.Body>
-                            <Card.Text>{x}</Card.Text>
-                          </Card.Body>
-                        </Card >
-                      )}
-                    </div>
-                    <div className="czar-mode">
-                      <h4>Czar Mode</h4>
-                      <label>
-                        <input type="radio" value="winner"
-                          checked={czarMode === "winner"}
-                          onChange={() => setCzarMode("winner")}
-                        />
-                        Winner
-                      </label>
-                      <label>
-                        <input type="radio" value="random"
-                          checked={czarMode === "random"}
-                          onChange={() => setCzarMode("random")}
-                        />
-                        Random
-                      </label>
-                      <label>
-                        <input type="radio" value="round_robin"
-                          checked={czarMode === "round_robin"}
-                          onChange={() => setCzarMode("round_robin")}
-                        />
-                        Round robin
-                      </label>
-                    </div>
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            </Accordion>}
-            <Form.Control as="input" value={gameName} onChange={e => setGameName(e.target.value)} placeholder="Game Name" disabled={urlParams.get('game')} />
-            <Form.Control as="input" value={playerName} onChange={e => setPlayerName(e.target.value)} placeholder="Player Name" />
-            <Button className="full-width"
-              onClick={() => selectedBoxes.length > 0? CreateGame() : handleClickChangeSocketUrl()} disabled={gameName === '' || playerName === ''}>
-              {selectedBoxes.length > 0? "Create Game": "Connect"}
-            </Button>
-          </Form.Group>
+        <div>
+        <img src="/logo192.png" alt="Logo" />
+                    <h2>Unofficial Online Edition</h2>
+                    <h3>What is the Unofficial Online Edition?</h3>
+                    <p>
+                      "Cards Against Humanity is a party game for horrible people. Unlike most of the party
+                      games you've played before, Cards Against Humanity is as despicable and awkward as you and
+                      your friends.
+                    </p>
+                    <p>
+                      The game is simple. Each round, one player asks a question from a black card, and everyone
+                      else answers with their funniest white card."
+                    </p>
+                    <p>The Unoffical Online Edition is a fan created online version of the game.</p>
+            <Button variant="primary" onClick={() => setModalShow(true)}>
+          Get Started
+        </Button>
+
+        <JoinCreateModal 
+          urlParams={urlParams}
+          boxes={boxes}
+          selectedBoxes={selectedBoxes}
+          toggleBox={toggleBox}
+          setGameName={setGameName}
+          gameName={gameName}
+          setPlayerName={setPlayerName}
+          czarMode={czarMode}
+          setCzarMode={setCzarMode}
+          CreateGame={CreateGame}
+          handleClickChangeSocketUrl={handleClickChangeSocketUrl}
+          playerName={playerName}
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+        />
+        </div>
         }
       </header>
       {readyState === ReadyState.OPEN &&
@@ -299,7 +279,7 @@ function App() {
           </div>
           <div className="player-cards col-12">
               <h2>Your Cards</h2>
-              {selectedCards.length === spotCount && cardCzar != playerName && !played && 
+              {selectedCards.length === spotCount && cardCzar !== playerName && !played && 
               <Button className="full-width" onClick={playCard}>
                 Play Cards
               </Button>}
@@ -317,6 +297,10 @@ function App() {
           </div>
         </main>
       }
+      {urlParams.get('dev') && 
+      <div>
+        <span>You are {connectionStatus === "Open" ? "connected" : "disconnected"}</span>
+      </div>}
     </div>
   )
 }

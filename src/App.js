@@ -282,7 +282,7 @@ function App() {
                   Start Game
                 </Button>}
               {cardsPlayed.map(cards => 
-                <div className="card-group" key="cards" onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
+                <div className="card-group" key={cards[0]} onClick={() => selectWinningCards(cards)} disabled={cardCzar !== playerName}>{
                   cards.map(card =>
                     <Card key={card} className={'base-card ' + (selectedWinningCards.includes(card) ? 'base-card-selected' : '')}>
                       <Card.Body>
